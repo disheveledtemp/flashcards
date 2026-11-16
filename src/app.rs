@@ -7,7 +7,7 @@ pub struct App {
     pub revealed: bool,
     pub scroll: u16,
     pub filename: String,
-    pub running: bool,
+    pub show_help: bool,
 }
 
 impl App {
@@ -18,7 +18,7 @@ impl App {
             revealed: false,
             scroll: 0,
             filename,
-            running: true,
+            show_help: false,
         }
     }
 
@@ -66,5 +66,57 @@ impl App {
     fn reset_view(&mut self) {
         self.revealed = false;
         self.scroll = 0;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::parser::Flashcard;
+
+    fn app(count: usize) -> App {
+        let cards = (0..count)
+            .map(|i| Flashcard {
+                question: format!("Q{i}"),
+                answer: format!("A{i}"),
+            })
+            .collect();
+
+        App::new(cards, "test.md".to_string())
+    }
+
+    #[test]
+    fn next_and_previous_wrap() {
+        let mut app = app(2);
+
+        app.next();
+        assert_eq!(app.current, 1);
+        app.next();
+        assert_eq!(app.current, 0);
+        app.previous();
+        assert_eq!(app.current, 1);
+    }
+
+    #[test]
+    fn random_never_picks_the_current_card() {
+        let mut app = app(2);
+
+        for _ in 0..20 {
+            let before = app.current;
+            app.random();
+            assert_ne!(app.current, before);
+        }
+    }
+
+    #[test]
+    fn moving_cards_resets_the_view() {
+        let mut app = app(2);
+        app.toggle_answer();
+        app.scroll = 7;
+
+        app.next();
+
+        assert!(!app.revealed);
+        assert_eq!(app.scroll, 0);
     }
 }

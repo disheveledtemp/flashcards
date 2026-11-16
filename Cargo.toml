@@ -3,6 +3,9 @@
 name = "flashcards"
 version = "0.1.0"
 edition = "2024"
+description = "A terminal flashcard app: study Markdown decks in your terminal"
+license = "MIT"
+repository = "https://github.com/disheveledtemp/flashcards"
 
 [dependencies]
 ratatui = { version = "0.29", features = ["unstable-rendered-line-info"] }
